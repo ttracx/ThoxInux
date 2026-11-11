@@ -1,0 +1,53 @@
+diff --git a/userspace/agentos/rust-toolchain.toml b/userspace/agentos/rust-toolchain.toml
+new file mode 100644
+index 0000000..b6cff89
+--- /dev/null
++++ b/userspace/agentos/rust-toolchain.toml
+@@ -0,0 +1,2 @@
++[toolchain]
++channel = "1.99.0"
+diff --git a/userspace/agentos/src/broker.rs b/userspace/agentos/src/broker.rs
+index 336d744..42cb597 100644
+--- a/userspace/agentos/src/broker.rs
++++ b/userspace/agentos/src/broker.rs
+@@ -264,6 +264,19 @@ impl<'a> Broker<'a> {
+         } else {
+             format!("{hostport}:80")
+         };
++        // The path and host are interpolated into the HTTP request line.
++        // CR, LF, and whitespace would let a granted agent inject headers.
++        let request_line_safe = |value: &str| {
++            !value.bytes().any(|b| b.is_ascii_whitespace() || b == b'\r' || b == b'\n')
++        };
++        if !request_line_safe(&hostport) || !request_line_safe(path) {
++            return self.deny(
++                agent,
++                "net.http_get",
++                url,
++                "url contains characters that are not allowed in an HTTP request line",
++            );
++        }
+         let result = (|| -> std::io::Result<String> {
+             let mut stream = TcpStream::connect(&hostport)?;
+             stream.set_read_timeout(Some(Duration::from_secs(10)))?;
+diff --git a/userspace/agentos/tests/parser_robustness.rs b/userspace/agentos/tests/parser_robustness.rs
+index a75912d..d740ca8 100644
+--- a/userspace/agentos/tests/parser_robustness.rs
++++ b/userspace/agentos/tests/parser_robustness.rs
+@@ -440,7 +440,15 @@ fn broker_malformed_tool_requests_are_denied_never_panic() {
+         network_egress: true,
+         ..Default::default()
+     };
+-    for url in ["", "https://127.0.0.1/", "http://", "http://127.0.0.1:1/"] {
++    for url in [
++        "",
++        "https://127.0.0.1/",
++        "http://",
++        "http://127.0.0.1:1/",
++        "http://127.0.0.1/\r\nX-Injected: 1",
++        "http://127.0.0.1/a b",
++        "http://evil host/index",
++    ] {
+         let started = Instant::now();
+         let out = broker.execute("worker", &egress, "net.http_get", &json!({"url": url}));
+         assert!(!out.allowed, "url {url:?} should not be allowed");

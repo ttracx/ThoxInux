@@ -1,0 +1,52 @@
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index 0d81947..db3f0a3 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -10,13 +10,12 @@ By participating in this project, you agree to maintain a respectful and collabo
+ 
+ 1. **Fork the repository** and create your branch from `main`.
+ 2. **Make your changes** following the code style and conventions of the project.
+-3. **Write tests** for any new functionality.
+-4. **Run the test suite** to ensure everything passes.
+-5. **Submit a Pull Request** with a clear description of your changes.
++3. **Write tests** for any new functionality when an implementation crate exists. v0.1.0 is specifications only and has no test suite.
++4. **Submit a Pull Request** with a clear description of your changes.
+ 
+ ## Pull Request Process
+ 
+-1. Ensure your code passes all CI checks.
++1. This repository has no CI workflow in v0.1.0. Say which checks you ran. Do not claim a green CI result that does not exist.
+ 2. Update documentation if you change functionality.
+ 3. Add or update tests as needed.
+ 4. Request review from a maintainer.
+diff --git a/README.md b/README.md
+index 24d4061..50c3cc5 100644
+--- a/README.md
++++ b/README.md
+@@ -15,8 +15,9 @@ provenance logs and passing host tests.
+ ## Experimental
+ 
+ This is a research project. It has no release SLA, no device commitment, and
+-no backer promise attached. Shipping THOX devices run ThoxOS Core on
+-`linux-thox`.
++no backer promise attached. Shipping device kernels are outside this
++repository. linux-thox v0.1.0 is packaging only and does not yet contain
++that kernel.
+ 
+ ## Clean-room
+ 
+@@ -70,12 +71,10 @@ Apache-2.0. See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).
+ 
+ ## Legal
+ 
+-Copyright (c) 2024-2026 THOX.ai LLC. All rights reserved.
++Copyright (c) 2024-2026 THOX.ai LLC.
+ 
+ **THOX.ai LLC**
+ - CTO: Tommy Xaypanya
+ - CEO: Craig Ross
+ 
+-Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
+-
+-Unauthorized copying, modification, merger, publication, distribution, sublicensing, and/or selling of this software, via any medium, is strictly prohibited without prior written consent from THOX.ai LLC.
++Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details. The Apache-2.0 grant is the license. This file does not add further restrictions.
