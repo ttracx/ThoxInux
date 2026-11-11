@@ -1,0 +1,124 @@
+diff --git a/kernel/ginux/scripts/build-native.sh b/kernel/ginux/scripts/build-native.sh
+index 130fbc1..5256e98 100755
+--- a/kernel/ginux/scripts/build-native.sh
++++ b/kernel/ginux/scripts/build-native.sh
+@@ -6,10 +6,22 @@ module_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ source "$module_root/upstream.env"
+ source_dir="${GINUX_SOURCE_DIR:-$module_root/.work/ginux}"
+ out="${GINUX_ARTIFACT_DIR:-$module_root/artifacts}"
++# Match build-unified.sh: the PE TimeDateStamp and the receipt use the pin.
++if [[ -z "${SOURCE_DATE_EPOCH:-}" ]]; then
++    SOURCE_DATE_EPOCH="${GINUX_SOURCE_DATE_EPOCH:?GINUX_SOURCE_DATE_EPOCH missing from upstream.env}"
++fi
++export SOURCE_DATE_EPOCH
++export THOX_BUILD_SCRIPT="${THOX_BUILD_SCRIPT:-kernel/ginux/scripts/build-native.sh}"
+ for cmd in git cargo rustc clang make python3; do
+     command -v "$cmd" >/dev/null || { echo "Missing prerequisite: $cmd" >&2; exit 1; }
+ done
+ "$module_root/scripts/prepare-source.sh" "$source_dir"
++# thox-registry-anchor.patch compiles include_str! of this public certificate.
++# prepare-source.sh does not install it; without this copy the documented
++# build fails inside the network crate.
++pinned_anchor="$module_root/registry-anchor/thoxos-local-root.pem"
++[[ -f "$pinned_anchor" ]] || { echo "Pinned registry anchor missing: $pinned_anchor" >&2; exit 1; }
++install -m 0644 "$pinned_anchor" "$source_dir/services/network/certs/thoxos-local-root.pem"
+ [[ "$(cd "$source_dir" && rustc --version | awk '{print $2}')" == "$GINUX_RUST_VERSION" ]] || {
+     echo "Install Rust $GINUX_RUST_VERSION and x86_64-unknown-uefi/x86_64-unknown-none targets." >&2
+     exit 1
+diff --git a/kernel/ginux/scripts/build-unified.sh b/kernel/ginux/scripts/build-unified.sh
+index f15ce13..fb188f1 100644
+--- a/kernel/ginux/scripts/build-unified.sh
++++ b/kernel/ginux/scripts/build-unified.sh
+@@ -20,6 +20,7 @@ else
+     echo "build-unified: SOURCE_DATE_EPOCH from caller: $SOURCE_DATE_EPOCH"
+ fi
+ export SOURCE_DATE_EPOCH
++export THOX_BUILD_SCRIPT="${THOX_BUILD_SCRIPT:-kernel/ginux/scripts/build-unified.sh}"
+ for cmd in git cargo rustc clang make python3 openssl; do
+     command -v "$cmd" >/dev/null || { echo "Missing prerequisite: $cmd" >&2; exit 1; }
+ done
+diff --git a/kernel/ginux/scripts/prepare_source.py b/kernel/ginux/scripts/prepare_source.py
+index fcea35f..592db2c 100644
+--- a/kernel/ginux/scripts/prepare_source.py
++++ b/kernel/ginux/scripts/prepare_source.py
+@@ -29,6 +29,12 @@ def patch_paths(patch_dir):
+     return [patch_dir / n for n in names]
+ 
+ 
++# Installed after the patch series by the build scripts. It is a public
++# certificate, not a patched upstream file, and a second build must not
++# treat it as unknown source.
++ALLOWED_UNTRACKED = {"services/network/certs/thoxos-local-root.pem"}
++
++
+ def prepare(root, commit, patch_dir):
+     root, patch_dir = root.resolve(), patch_dir.resolve()
+     if git(root, "rev-parse", "HEAD").decode().strip() != commit:
+@@ -49,10 +55,16 @@ def prepare(root, commit, patch_dir):
+         expected_bytes = {p: (expected / p).read_bytes() for p in expected_paths if p != generated}
+         unknown = git(root, "ls-files", "--others", "--exclude-standard", "-z").split(b"\0")
+         unknown = {p.decode() for p in unknown if p}
+-        if unknown - expected_paths:
++        for extra in ALLOWED_UNTRACKED:
++            extra_path = root / extra
++            if extra_path.is_symlink():
++                raise ValueError("Refusing symlinked source files")
++        if (unknown - ALLOWED_UNTRACKED) - expected_paths:
+             raise ValueError("Refusing untracked source files")
+         if any((root / p).is_symlink() for p in expected_bytes):
+             raise ValueError("Refusing symlinked source files")
++        # Keep the registry certificate in `unknown` so a second build does
++        # not look pristine and re-apply the series onto an already patched tree.
+         pristine = not unknown and all((root / p).is_file() and (root / p).read_bytes() == b for p, b in originals.items())
+         if pristine:
+             for patch in patches:
+@@ -61,6 +73,7 @@ def prepare(root, commit, patch_dir):
+             if not (root / p).is_file() or (root / p).read_bytes() != expected_data:
+                 raise ValueError("Source differs from reviewed patch series: " + p)
+         actual_paths = set(paths(root)) | {p.decode() for p in git(root, "ls-files", "--others", "--exclude-standard", "-z").split(b"\0") if p}
++        actual_paths -= ALLOWED_UNTRACKED
+         if actual_paths != expected_paths:
+             raise ValueError("Tracked source inventory differs from reviewed patch series")
+     return [p.name for p in patches]
+diff --git a/kernel/ginux/scripts/run-vm.sh b/kernel/ginux/scripts/run-vm.sh
+index 55597d7..b96e65c 100755
+--- a/kernel/ginux/scripts/run-vm.sh
++++ b/kernel/ginux/scripts/run-vm.sh
+@@ -37,6 +37,9 @@ fi
+ for path in "$artifact_dir" "$state_dir"; do
+     [[ "$path" != *','* && "$path" != *$'\n'* ]] || { echo "QEMU paths cannot contain commas or newlines" >&2; exit 2; }
+ done
++# The ESP drive is passed as fat:rw:<state>/esp. A colon is a fat: field
++# separator, so it is not a safe character in the state directory.
++[[ "$state_dir" != *:* ]] || { echo "State directory cannot contain a colon" >&2; exit 2; }
+ artifact_dir="$(realpath "$artifact_dir")"
+ [[ -s "$artifact_dir/GINUX.EFI" && -s "$artifact_dir/SHA256SUMS" ]] || {
+     echo "Missing built artifacts. Build or export the EFI first." >&2; exit 1;
+diff --git a/kernel/ginux/scripts/write-build-receipt.py b/kernel/ginux/scripts/write-build-receipt.py
+index c639a5b..57b9aba 100644
+--- a/kernel/ginux/scripts/write-build-receipt.py
++++ b/kernel/ginux/scripts/write-build-receipt.py
+@@ -33,6 +33,6 @@ receipt = {
+     "build_path": str(source.resolve()),
+     "source_date_epoch": os.environ.get("SOURCE_DATE_EPOCH"),
+     "registry_anchor_sha256": sha(anchor) if (anchor := (source / "services/network/certs/thoxos-local-root.pem")).is_file() else None,
+-    "build_script": "kernel/ginux/scripts/build-unified.sh",
++    "build_script": os.environ.get("THOX_BUILD_SCRIPT", "kernel/ginux/scripts/build-unified.sh"),
+ }
+ (out / "build-receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+diff --git a/kernel/ginux/tests/test_launcher.py b/kernel/ginux/tests/test_launcher.py
+index 5c4312e..e529086 100644
+--- a/kernel/ginux/tests/test_launcher.py
++++ b/kernel/ginux/tests/test_launcher.py
+@@ -90,6 +90,11 @@ class LauncherTests(unittest.TestCase):
+         result = self.run_launcher("--state-dir", str(self.root / "bad,readonly=on"), "--print-command")
+         self.assertEqual(result.returncode, 2)
+ 
++    def test_state_dir_colon_rejected(self):
++        result = self.run_launcher("--state-dir", str(self.root / "bad:rw"), "--print-command")
++        self.assertEqual(result.returncode, 2)
++        self.assertIn("colon", result.stderr)
++
+     def test_mismatched_firmware_configuration_rejected(self):
+         self.env["OVMF_VARS"] = "/missing/vars.fd"
+         result = self.run_launcher("--print-command")

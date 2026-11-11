@@ -1,0 +1,122 @@
+diff --git a/NOTICE.md b/NOTICE.md
+index 44717fc..821a9d5 100644
+--- a/NOTICE.md
++++ b/NOTICE.md
+@@ -1,8 +1,8 @@
+ # NOTICE
+ 
+-linux-thox — The THOX kernel package: Linux LTS with the THOX patch series and published defconfigs per compute class (E2, P4, P6, desktop). This is the kernel that shipping ThoxOS Core devices run.
++linux-thox. The THOX kernel package: Linux LTS pins, an empty patch series, and config fragments per compute class (E2, P4, P6, desktop). v0.1.0 is packaging only. It is not the kernel image shipping devices run.
+ 
+-Copyright (c) 2026 THOX.ai LLC. All rights reserved under the license in `LICENSE` (GPL-2.0-only).
++Copyright (c) 2026 THOX.ai LLC. Licensed under `LICENSE` (GPL-2.0-only), with no additional restrictions.
+ 
+ Tommy Xaypanya is CTO of THOX.ai LLC. Craig Ross is CEO of THOX.ai LLC.
+ THOX.ai LLC is an independent Texas limited liability company.
+diff --git a/README.md b/README.md
+index f68fb0d..b883c1f 100644
+--- a/README.md
++++ b/README.md
+@@ -3,7 +3,7 @@
+ [![License](https://img.shields.io/badge/license-GPL--2.0--only-blue?style=flat-square)](LICENSE)
+ [![THOX.ai](https://img.shields.io/badge/THOX.ai-portfolio-05A451?style=flat-square)](https://thox.ai)
+ 
+-The THOX kernel package: Linux LTS with the THOX patch series and published defconfigs per compute class (E2, P4, P6, desktop). This is the kernel that shipping ThoxOS Core devices run.
++The THOX kernel package: Linux LTS with the THOX patch series and published defconfigs per compute class (E2, P4, P6, desktop). v0.1.0 is the packaging skeleton. It is not yet a kernel image, and this tree does not contain the kernel shipping devices run.
+ 
+ **Status:** v0.1.0 source package (2026-10-31). Honest scope: v0.1.0 is the
+ linux-thox **packaging** — the pinned upstream LTS bases, the patch-series
+@@ -17,9 +17,10 @@ nothing more is claimed. See [BUILDING.md](BUILDING.md).
+ 
+ ## Shape
+ 
+-- Base: Linux 6.6 LTS (devices), 6.12 LTS (desktop class). The THOX delta is a
+-  readable commit series on top of the LTS tag: `git log v6.6..HEAD` is the
+-  whole THOX story.
++- Base: Linux 6.6 LTS (devices), 6.12 LTS (desktop class). The intended THOX
++  delta is a readable commit series on top of the LTS tag. This repository
++  does not contain a `v6.6` tag or a kernel import, so `git log v6.6..HEAD`
++  does not run here.
+ - Configs: `thox_e2_defconfig`, `thox_p4_defconfig`, `thox_p6_defconfig`,
+   `thox_desktop_defconfig` (to land with the first import). v0.1.0 ships the
+   config **fragments** those defconfigs will be generated from, in
+@@ -86,12 +87,10 @@ GPL-2.0-only. See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).
+ 
+ ## Legal
+ 
+-Copyright (c) 2024-2026 THOX.ai LLC. All rights reserved.
++Copyright (c) 2024-2026 THOX.ai LLC.
+ 
+ **THOX.ai LLC**
+ - CTO: Tommy Xaypanya
+ - CEO: Craig Ross
+ 
+-Proprietary and confidential — see [LICENSE](LICENSE) for terms. No public distribution without prior written approval from THOX.ai LLC.
+-
+-Unauthorized copying, modification, merger, publication, distribution, sublicensing, and/or selling of this software, via any medium, is strictly prohibited without prior written consent from THOX.ai LLC.
++GPL-2.0-only. See [LICENSE](LICENSE). GPL section 6 forbids additional restrictions, so this file does not prohibit copying or distribution.
+diff --git a/docs/KERNEL.md b/docs/KERNEL.md
+index 86a41a9..af56813 100644
+--- a/docs/KERNEL.md
++++ b/docs/KERNEL.md
+@@ -15,23 +15,23 @@ Your AI. Your Data. Your Rules.™
+ 
+ ## What linux-thox is
+ 
+-linux-thox is the kernel ThoxOS Core runs. It is a Linux LTS fork,
+-licensed GPL-2.0-only, and it is deliberately *not* a new kernel: the
+-THOX delta on top of upstream Linux is a readable patch series plus
+-published configuration files, so anyone can see exactly what THOX
+-changes and why. `git log v6.6..HEAD` is the whole THOX story — that
+-one command is the audit surface. In v0.1.0 the configuration is
+-published as per-class config *fragments* (intent, under `configs/`
+-in the linux-thox package); the defconfig files are generated from
+-those fragments at the first import.
++linux-thox is intended to be the kernel ThoxOS Core runs. It is a Linux
++LTS fork, licensed GPL-2.0-only, and it is deliberately not a new kernel:
++the THOX delta on top of upstream Linux is meant to be a readable patch
++series plus published configuration files. In v0.1.0 that series is empty
++and this repository has no `v6.6` tag, so `git log v6.6..HEAD` is not an
++audit surface yet. The configuration is published as per-class config
++fragments (intent, under `configs/`); the defconfig files are generated
++from those fragments at the first import.
+ 
+ | Base | Used for | Why |
+ | --- | --- | --- |
+ | Linux 6.6 LTS (v0.1.0 pin: 6.6.161) | Device classes E2, P4, P6 | Long-term support series, programme-locked for devices until a device-qualification cycle justifies moving |
+ | Linux 6.12 LTS (v0.1.0 pin: 6.12.115) | Desktop class | Current long-term support series for the Desktop Edition (Debian 13 userland, COSMIC desktop) |
+ 
+-Full source accompanies every binary image, with the GPL source
+-offer, at release.
++v0.1.0 publishes this packaging tree, not a binary kernel image. When a
++binary image is released, GPL-2.0-only requires the corresponding complete
++source to accompany it.
+ 
+ ## The patch series
+ 
+diff --git a/tools/build-linux-thox.sh b/tools/build-linux-thox.sh
+old mode 100644
+new mode 100755
+index 080c21d..68ceb53
+--- a/tools/build-linux-thox.sh
++++ b/tools/build-linux-thox.sh
+@@ -87,6 +87,19 @@ if [ "$actual" != "$expected" ]; then
+   echo "  actual:                $actual" >&2
+   exit 1
+ fi
++# Digests recorded from kernel.org sha256sums.asc on 2026-11-11.
++# Both the live sums file and this pin must match.
++case "$KVER" in
++  6.6.161) pinned=7d34405be5cd4989b2a5e9cbefa798e3a175218901271e034af3fe4e840b71c6 ;;
++  6.12.115) pinned=0ec90fe4b20422b1b664b77e6d2dde22b40bd41e7eb2cad8ac8739a4749cb1bb ;;
++  *) echo "ERROR: no pinned digest for linux-$KVER" >&2; exit 1 ;;
++esac
++if [ "$actual" != "$pinned" ]; then
++  echo "ERROR: sha256 does not match the digest pinned in this script" >&2
++  echo "  pinned: $pinned" >&2
++  echo "  actual: $actual" >&2
++  exit 1
++fi
+ echo "-- sha256 verified: $actual"
+ 
+ # --- 3. extract ---

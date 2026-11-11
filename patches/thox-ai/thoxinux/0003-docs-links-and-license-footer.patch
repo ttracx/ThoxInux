@@ -1,0 +1,179 @@
+diff --git a/.agents/CONTINUATION_HANDOFF.md b/.agents/CONTINUATION_HANDOFF.md
+index f89fd90..a96553c 100644
+--- a/.agents/CONTINUATION_HANDOFF.md
++++ b/.agents/CONTINUATION_HANDOFF.md
+@@ -14,7 +14,7 @@ Promote the latest ThoxOS Ginux desktop/image implementation while preserving th
+ - Preserve the two EFI patch sets and hashes. Combining source trees does not establish image rebuild, Azure deployment, physical boot or MeshStack integration.
+ - Final authenticated source SHA, artifact hashes and remote readback are recorded after push, outside the reviewed shipping commit.
+ 
+-Read [the continuation note](../docs/continuation/README.md), [current validation](../docs/continuation/validation.json), both existing handoffs (`HANDOFF.md`, `AZURE_HANDOFF.md`), `../ginux-edition/.agents/HANDOFF.md`, the root experience selector and owning validation files before another change. Fresh screenshot/recording assets live in `docs/continuation/media/`; the final video is `live-guest.mp4`.
++Read [the continuation note](../docs/continuation/README.md), [current validation](../docs/continuation/validation.json), both existing handoffs (`HANDOFF.md`, `AZURE_HANDOFF.md`), `../userspace/ginux-edition/.agents/HANDOFF.md`, the root experience selector and owning validation files before another change. Fresh screenshot/recording assets live in `docs/continuation/media/`; the final video is `live-guest.mp4`.
+ 
+ The current illustrated report is `docs/continuation/report.html` and `docs/continuation/report.pdf`. The final four-page PDF was rendered and every page inspected; embedded Inter/JetBrains Mono and the exact template logo are preserved. Structural offline HTML checks passed; interactive HTML browser QA remains unrun.
+ 
+diff --git a/README.md b/README.md
+index 8f210fc..fd97e93 100644
+--- a/README.md
++++ b/README.md
+@@ -67,7 +67,7 @@ make demo-shell
+ 
+ ## Releases
+ 
+-Releases live on the Releases page of this repository. Only released versions get tags and release entries. The v0.9.0 release is staged as a draft while the repository is private and is published only on an explicit founder order.
++Releases live on the Releases page of this repository. Tags v0.9.0 (`5ec049bd7911ee5d0eb2e280555212822b7b9cd1`) and v0.9.1 (`84b4a7e740496297ca79dff735834ca2a8f2bad3`) are published prereleases. v0.9.1 is not a separate kernel revision from the 0.9.0 identity banner.
+ 
+ ## Agent handoff
+ 
+@@ -75,7 +75,7 @@ Agents resuming this work start at .agents/HANDOFF.md.
+ 
+ ## Governance
+ 
+-This repository is private during staging. Public publishing (social posts, website changes, store listings, public repository flips, registries, campaigns) requires Craig Ross's explicit approval via craig@thox.ai, CC tommy@thox.ai. The thox.ai website additionally requires Craig's request. See the governance note in docs/DEVELOPMENT.md.
++This repository is public. Further publishing (social posts, website changes, store listings, registries, campaigns) requires Craig Ross's explicit approval via craig@thox.ai, CC tommy@thox.ai. The thox.ai website additionally requires Craig's request. See the governance note in docs/DEVELOPMENT.md.
+ 
+ ## License
+ 
+@@ -85,12 +85,10 @@ Apache-2.0. See LICENSE and NOTICE.md. Ginux upstream is Apache-2.0 (gmkurtzer/g
+ 
+ ## Legal
+ 
+-Copyright (c) 2024-2026 THOX.ai LLC. All rights reserved.
++Copyright (c) 2024-2026 THOX.ai LLC.
+ 
+ **THOX.ai LLC**
+ - CTO: Tommy Xaypanya
+ - CEO: Craig Ross
+ 
+-Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
+-
+-Unauthorized copying, modification, merger, publication, distribution, sublicensing, and/or selling of this software, via any medium, is strictly prohibited without prior written consent from THOX.ai LLC.
++Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details. The Apache-2.0 grant is the license. This file does not add further restrictions.
+diff --git a/docs/DEVELOPMENT.md b/docs/DEVELOPMENT.md
+index bddb961..33e4e83 100644
+--- a/docs/DEVELOPMENT.md
++++ b/docs/DEVELOPMENT.md
+@@ -37,7 +37,7 @@ Local CI is the THOX pattern (no GitHub Actions): run the suites above and recor
+ 
+ ## Work log
+ 
+-- 2026-10-31: monorepo created by transforming ttracx/thoxos-ginux (private archive of record, untouched). Two predecessor patch sets converged into the unified series; reconciliation closed in docs/RECONCILIATION-2026-10-31.md. thox-agentos adopted into userspace/agentos. v0.9.0 staged as a draft release, repository private, public flip is a founder decision.
++- 2026-10-31: monorepo created by transforming ttracx/thoxos-ginux (private archive of record, untouched). Two predecessor patch sets converged into the unified series; reconciliation closed in docs/RECONCILIATION-2026-10-31.md. thox-agentos adopted into userspace/agentos. v0.9.0 and v0.9.1 are published prereleases. Further announcements remain a founder decision.
+ 
+ ## Known limitations
+ 
+diff --git a/docs/azure/DEVELOPMENT.md b/docs/azure/DEVELOPMENT.md
+index 4ae3feb..9f0cabf 100644
+--- a/docs/azure/DEVELOPMENT.md
++++ b/docs/azure/DEVELOPMENT.md
+@@ -1,6 +1,6 @@
+ # Azure variant development handoff
+ 
+-Private engineering candidate based on repository main `e88662bdc7e975753a5a049eb4b664bcee0db7e5`; upstream pin remains `36503bda2d87465765e1b94e65f9d100f27ed5be`. See [current validation](../../evidence/azure/VALIDATION_SUMMARY.json), [build provenance](../../module-ginux/SOURCE_MANIFEST.json), [deployment guide](THOX_Ginux_Azure_Deployment_Guide.pdf) and [Azure commands](../../azure/README.md).
++Historical engineering candidate. The sentence below was written against repository main `e88662bdc7e975753a5a049eb4b664bcee0db7e5`, which is not the current public HEAD. Upstream pin remains `36503bda2d87465765e1b94e65f9d100f27ed5be`. See [current validation](../../evidence/azure/VALIDATION_SUMMARY.json), [build provenance](../../kernel/ginux/SOURCE_MANIFEST.json), [deployment guide](THOX_Ginux_Azure_Deployment_Guide.pdf) and [Azure commands](../deployment-azure/README.md).
+ 
+ The complete corrected EFI and minimal-system lifecycle are tested locally. Deploy only the corresponding allowlisted runtime ZIP on a dedicated Ubuntu Azure host. The deployment helper requires explicit subscription, a regional Gen2 image version, existing private artifact storage and an owned or empty compute resource group. Cloud acceptance remains open until real server validation, what-if, cloud-init and guest logs are returned. Do not claim AVD/native Hyper-V boot or Gallery capture from ARM syntax checks.
+ 
+diff --git a/docs/azure/START_HERE.md b/docs/azure/START_HERE.md
+index 211a9e9..5931566 100644
+--- a/docs/azure/START_HERE.md
++++ b/docs/azure/START_HERE.md
+@@ -2,7 +2,7 @@
+ 
+ `0.2.0-azure-candidate` · Engineering candidate · October 29, 2026
+ 
+-[PDF deployment guide](THOX_Ginux_Azure_Deployment_Guide.pdf) · [HTML deployment guide](html/THOX_Ginux_Azure_Deployment_Guide.html) · [Current validation](validation.json) · [Complete Azure commands](../../azure/README.md)
++[PDF deployment guide](THOX_Ginux_Azure_Deployment_Guide.pdf) · [HTML deployment guide](html/THOX_Ginux_Azure_Deployment_Guide.html) · [Current validation](validation.json) · [Complete Azure commands](../deployment-azure/README.md)
+ 
+ **Your AI. Your Data. Your Rules.™**
+ 
+@@ -34,7 +34,7 @@ The launcher verifies its artifact inventory before boot. At `ginux>` enter `sta
+ 
+ ## Build and package from source
+ 
+-Follow the full [module prerequisite instructions](../../module-ginux/README.md), including Rust 1.99.0, both Rust targets, Clang and GNU Make. From a reviewed source checkout:
++Follow the full [module prerequisite instructions](../../kernel/ginux/README.md), including Rust 1.99.0, both Rust targets, Clang and GNU Make. From a reviewed source checkout:
+ 
+ ```bash
+ bash module-ginux/scripts/build-native.sh
+@@ -92,11 +92,11 @@ az vm run-command invoke \
+ 
+ Repeat the read-only status check until cloud-init finishes; retain failures. The bounded bootstrap smoke proves controller boot, commands and clean shutdown only. Retain its JSON and log, artifact hashes and ARM outputs. A live domain lifecycle, separate-boot persistence and private route require their own acceptance. Provisioning success alone does not qualify them.
+ 
+-To enable interactive access, configure the narrow private SSH option and a real private route, or opt into Standard Bastion before preparing a fresh plan. Follow the [Bastion commands](../../azure/README.md). After SSH, `sudo -iu thoxginux thox-ginux` opens the guest serial terminal. Azure Serial Console reaches Ubuntu. No permanent guest daemon is installed.
++To enable interactive access, configure the narrow private SSH option and a real private route, or opt into Standard Bastion before preparing a fresh plan. Follow the [Bastion commands](../deployment-azure/README.md). After SSH, `sudo -iu thoxginux thox-ginux` opens the guest serial terminal. Azure Serial Console reaches Ubuntu. No permanent guest daemon is installed.
+ 
+ ## Capture or clean up deliberately
+ 
+-Customize and capture a disposable **Linux host** only after live acceptance, using [CAPTURE_MASTER_IMAGE.md](../../azure/CAPTURE_MASTER_IMAGE.md). Generalization is irreversible; no helper runs it automatically. A gallery version needs a fresh-clone acceptance test. The user's linked Windows AVD image procedure supplies lifecycle context and does not establish Linux AVD support.
++Customize and capture a disposable **Linux host** only after live acceptance, using [CAPTURE_MASTER_IMAGE.md](../deployment-azure/CAPTURE_MASTER_IMAGE.md). Generalization is irreversible; no helper runs it automatically. A gallery version needs a fresh-clone acceptance test. The user's linked Windows AVD image procedure supplies lifecycle context and does not establish Linux AVD support.
+ 
+ Before deleting resources, inventory the exact dedicated resource group, preserve the receipts, and confirm it contains only this disposable deployment. Shared artifact storage and gallery versions need their own reviewed retention decisions. Physical external SSD/KnightHub boot remains unqualified; no disk-writing command is part of this QuickStart.
+ 
+diff --git a/docs/continuation/README.md b/docs/continuation/README.md
+index 96675b1..003576c 100644
+--- a/docs/continuation/README.md
++++ b/docs/continuation/README.md
+@@ -31,9 +31,9 @@ The final remote commit and push/merge readback belong in the post-push receipt.
+ 
+ | User-visible behavior | Evidence | Boundary |
+ | --- | --- | --- |
+-| Desktop splash, login, three looks and Ginux terminal | [Desktop screenshot inventory](../../ginux-edition/docs/DESKTOP.md#screenshots), [0.2.0 bench files](../../ginux-edition/docs/evidence/0.2.0/) | Prior image-team captures from a VHD in QEMU reached over RDP; Azure was not deployed |
+-| Docker boot, browser shell and ThoxOS commands on Ginux | [Image validation V5, V11, V12, V17 and V18](../../ginux-edition/docs/VALIDATION.md), [user guide](../../ginux-edition/docs/USER_GUIDE.md) | Prior image-team execution; OCI guest patch set and payload differ from the root Azure EFI |
+-| Desktop/headless VHD and USB-disk image boot | [Image validation V26, V30 and V31](../../ginux-edition/docs/VALIDATION.md) | 23 desktop, 13 headless and 6 USB-disk checks from the prior image team; virtualized image proof, not physical boot |
++| Desktop splash, login, three looks and Ginux terminal | [Desktop screenshot inventory](../../userspace/ginux-edition/docs/DESKTOP.md#screenshots), [0.2.0 bench files](../../userspace/ginux-edition/docs/evidence/0.2.0/) | Prior image-team captures from a VHD in QEMU reached over RDP; Azure was not deployed |
++| Docker boot, browser shell and ThoxOS commands on Ginux | [Image validation V5, V11, V12, V17 and V18](../../userspace/ginux-edition/docs/VALIDATION.md), [user guide](../../userspace/ginux-edition/docs/USER_GUIDE.md) | Prior image-team execution; OCI guest patch set and payload differ from the root Azure EFI |
++| Desktop/headless VHD and USB-disk image boot | [Image validation V26, V30 and V31](../../userspace/ginux-edition/docs/VALIDATION.md) | 23 desktop, 13 headless and 6 USB-disk checks from the prior image team; virtualized image proof, not physical boot |
+ | Embedded `/sbin/init`, detached status, restart, failure recovery and persistence | [Root Azure lifecycle receipt](../../evidence/azure/lifecycle-results.json), [validation summary](../../evidence/azure/VALIDATION_SUMMARY.json) | Payload-bound QEMU TCG evidence for the root Azure EFI |
+ | Original Ginux screen recordings and user scenes | [Media introduction](../azure/media/README.md), [manifest](../azure/media/DELIVERY_MANIFEST.json) | Screen recordings are authentic; fictional user scenes retain their synthetic labels |
+ | Fresh continuation checks and guest capture | [Validation receipt](validation.json), [live guest recording](media/live-guest.mp4) | The receipt identifies the exact executed checks, environment, payload hash and capture limits; the recording uses the root Azure EFI |
+@@ -45,7 +45,7 @@ Image-team evidence above is reviewed existing evidence, not a claim that this c
+ 1. Read the [experience selector](../../README.md#choose-your-experience) and install that path's prerequisites.
+ 2. For interaction, build the Docker image and run `make selftest`, then `make demo-shell`. Confirm `uname -srm`, `thox version` and `thox status` in the real Ginux guest.
+ 3. For the browser shell, bind port 7681 to `127.0.0.1`, set shell mode, and sign in with the generated credential. The standard systemd login path has an upstream getty limitation; use the documented shell path.
+-4. For the complete desktop, build and boot the VHD in the [QEMU/RDP bench](../../ginux-edition/docs/AZURE.md#build). Inspect login, each look, About and a Ginux terminal before any cloud deployment.
++4. For the complete desktop, build and boot the VHD in the [QEMU/RDP bench](../../userspace/ginux-edition/docs/AZURE.md#build). Inspect login, each look, About and a Ginux terminal before any cloud deployment.
+ 5. Deploy only against an authorized Azure subscription with the intended image and security model. Select and inventory a spare SSD before a physical installation; never infer a target from an old label.
+ 
+ ## Current target limits
+@@ -60,6 +60,6 @@ There is no established MeshStack runtime integration in this Ginux variant. A G
+ 
+ ## Operating and recovery
+ 
+-Follow the owning [Ginux Edition user guide](../../ginux-edition/docs/USER_GUIDE.md) for VM state, browser access, look switching and recovery, and the root [Azure Compute guide](../azure/START_HERE.md) for its independent payload. Preserve existing guest state and foreign source checkouts. A refused integrity, target, credential or ownership check is a stop signal for that action, not permission to remove a guard.
++Follow the owning [Ginux Edition user guide](../../userspace/ginux-edition/docs/USER_GUIDE.md) for VM state, browser access, look switching and recovery, and the root [Azure Compute guide](../azure/START_HERE.md) for its independent payload. Preserve existing guest state and foreign source checkouts. A refused integrity, target, credential or ownership check is a stop signal for that action, not permission to remove a guard.
+ 
+-Current development uses [local CI](../../ginux-edition/docs/DEVELOPMENT.md#continuous-integration) rather than GitHub Actions under the existing cost decision. Successful tests need the exact source revision and log; a status badge, filename or staged artifact alone is insufficient.
++Current development uses [local CI](../../userspace/ginux-edition/docs/DEVELOPMENT.md#continuous-integration) rather than GitHub Actions under the existing cost decision. Successful tests need the exact source revision and log; a status badge, filename or staged artifact alone is insufficient.
+diff --git a/kernel/ginux/README.md b/kernel/ginux/README.md
+index 990216a..3243d5e 100644
+--- a/kernel/ginux/README.md
++++ b/kernel/ginux/README.md
+@@ -1,6 +1,6 @@
+ # ThoxOS Ginux Azure Compute Edition
+ 
+-Version `0.2.0-azure-candidate`. [Current Azure QuickStart](../docs/azure/START_HERE.md) · [Deployment guide](../docs/azure/THOX_Ginux_Azure_Deployment_Guide.pdf) · [Azure CLI and infrastructure](../azure/README.md)
++Version `0.2.0-azure-candidate`. [Current Azure QuickStart](../../docs/azure/START_HERE.md) · [Deployment guide](../../docs/azure/THOX_Ginux_Azure_Deployment_Guide.pdf) · [Azure CLI and infrastructure](../../docs/deployment-azure/README.md)
+ 
+ THOX-branded Ginux research guest with a Docker/QEMU demo and a standalone Linux host launcher. This is an engineering preview. It is a serial-console operating-system prototype, and it does not provide a graphical ThoxOS desktop or NVIDIA acceleration.
+ 
+@@ -10,7 +10,7 @@ Your AI. Your Data. Your Rules.™
+ 
+ ## Current acceptance
+ 
+-The final combined THOX Azure EFI passed 22 actual native QEMU TCG commands at 2 GiB: embedded `/sbin/init`, detached PID 100, stop/start/restart, failure recovery, clean shutdown and saved-configuration recovery on a separate boot. [Current validation](../docs/azure/validation.json) and the [lifecycle receipt](../evidence/azure/lifecycle-results.json) bind the 17 cold-boot and 5 recovery commands to this payload. EFI SHA-256: `3ebcc9043ef9dc8b7e75abc15b113a5810c8d39c0ad47143476a41caed24d5ba` (12,507,648 bytes).
++The final combined THOX Azure EFI passed 22 actual native QEMU TCG commands at 2 GiB: embedded `/sbin/init`, detached PID 100, stop/start/restart, failure recovery, clean shutdown and saved-configuration recovery on a separate boot. [Current validation](../../docs/azure/validation.json) and the [lifecycle receipt](../../evidence/azure/lifecycle-results.json) bind the 17 cold-boot and 5 recovery commands to this payload. EFI SHA-256: `3ebcc9043ef9dc8b7e75abc15b113a5810c8d39c0ad47143476a41caed24d5ba` (12,507,648 bytes). This receipt is the pre-consolidation Azure candidate, not the v0.9.1 release EFI (`1bc1c7af33470edc009fa5756d3fe6063573660e07e157d19397afc680a7bb89`).
+ 
+ This corrects the embedded-domain panic recorded in the **October 28 historical evidence** for both the predecessor THOX and pinned upstream build. The original evidence and guide are preserved. Broad Linux application compatibility, Docker runtime, KVM, actual Azure deployment and physical KnightHub boot remain unqualified.
+ 
+@@ -84,9 +84,9 @@ THOX modifications include the research/Azure banners, documented startup correc
+ 
+ ## Azure Compute host
+ 
+-The [Azure deployment](../azure/README.md) retains Ubuntu 24.04 Gen2 as the Azure OS and runs this launcher with QEMU TCG, one vCPU and 2 GiB. The host has Trusted Launch, Secure Boot/vTPM, accelerated networking and explicit NAT; the VM has no public IP. Its managed identity fetches a private, SHA-256-pinned release ZIP. Default acceptance uses Azure Run Command; optional private SSH/Bastion enables the serial demo. No Docker daemon or KVM is required on that host. Host Secure Boot is separate from guest OVMF trust.
++The [Azure deployment](../../docs/deployment-azure/README.md) retains Ubuntu 24.04 Gen2 as the Azure OS and runs this launcher with QEMU TCG, one vCPU and 2 GiB. The host has Trusted Launch, Secure Boot/vTPM, accelerated networking and explicit NAT; the VM has no public IP. Its managed identity fetches a private, SHA-256-pinned release ZIP. Default acceptance uses Azure Run Command; optional private SSH/Bastion enables the serial demo. No Docker daemon or KVM is required on that host. Host Secure Boot is separate from guest OVMF trust.
+ 
+-The linked Windows AVD master-image procedure does not make Ginux a supported AVD session host. A [manual Linux host capture](../azure/CAPTURE_MASTER_IMAGE.md) follows successful cloud acceptance. Authentication, ARM server validation, deployment and capture have not run here.
++The linked Windows AVD master-image procedure does not make Ginux a supported AVD session host. A [manual Linux host capture](../../docs/deployment-azure/CAPTURE_MASTER_IMAGE.md) follows successful cloud acceptance. Authentication, ARM server validation, deployment and capture have not run here.
+ 
+ ## Validation
+ 
