@@ -1,23 +1,17 @@
-# ThoxInux
+# ThoxInux (interim personal stub)
 
-**Apache-2.0** · Rust-first, Linux-ABI-compatible kernel for local-first AI devices.
+**This repository is not the canonical ThoxInux source tree.**
 
-Built on [Gregory M. Kurtzer’s Ginux](https://github.com/gmkurtzer/ginux) (pinned at `36503bda2d87465765e1b94e65f9d100f27ed5be`) and the existing ThoxOS Ginux Edition engineering preview.
+Canonical public home: **[Thox-ai/thoxinux](https://github.com/Thox-ai/thoxinux)** (Apache-2.0).
+
+Program hub for Rust OS / protection POC work: [ttracx/thoxos-rust-program](https://github.com/ttracx/thoxos-rust-program).
 
 **Your AI. Your Data. Your Rules.™**
 
 ## Status
-Engineering preview. Phase 0 (syscall audit) and Phase 1 (Docker VM + KnightHub SSD boot-to-shell) reuse existing validated artifacts from the private seed. No production claim.
 
-## Open vs proprietary
-- **Open (Apache-2.0):** kernel (Ginux + THOX patches), boot (UEFI/`GINUX.EFI`, KnightHub SSD installer), userspace (ThoxOS shell, agents, files, devices, search), ThoxBeam interface, SDK, docs.
-- **Proprietary:** MeshStack (closed plugin over stable ABI), ThoxKey firmware and secure-boot keys, non-Apache-clean model weights.
+Engineering-preview redirect stub only. Do not treat commits here as the Ginux fork, EFI artifacts, or userspace. Upstream Ginux attribution and the full LICENSE/NOTICE ledger live in `Thox-ai/thoxinux`.
 
-See NOTICE for upstream attribution.
+## License
 
-## Next
-Import of existing Docker interactive shell, KnightHub external SSD path, and evidence receipts is pending. Help shape the open foundation.
-
----
-
-*This is an interim personal repository (ttracx/ThoxInux). Target public home is Thox-ai/thoxinux once created under the organization.*
+Documentation in this stub is provided under Apache-2.0 for consistency with the canonical repository. See [LICENSE](LICENSE).
