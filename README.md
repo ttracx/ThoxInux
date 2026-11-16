@@ -1,5 +1,9 @@
 # ThoxInux
 
+![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+![THOX.ai](https://img.shields.io/badge/THOX.ai-LLC-red.svg)
+![Repository](https://img.shields.io/badge/repository-ttracx%2FThoxInux-0B1220)
+
 Public status mirror for the ThoxInux engineering preview. Apache-2.0.
 
 This repository does not contain a kernel. It is a pointer, a license, and the 2026-11-11 family review. The source tree that builds the preview is the public repository [Thox-ai/thoxinux](https://github.com/Thox-ai/thoxinux) at `334539c32ad308e7e880c5dce6fa6ba69cd01cf7` (main on 2026-11-11). Prerelease tags there are `v0.9.0` (`5ec049bd7911ee5d0eb2e280555212822b7b9cd1`) and `v0.9.1` (`84b4a7e740496297ca79dff735834ca2a8f2bad3`).
@@ -35,3 +39,17 @@ Fixes that belong in Thox-ai repositories are patch files under [patches/thox-ai
 Apache-2.0. See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md). Ginux upstream is Apache-2.0. Linux-derived kernel packaging in Thox-ai/linux-thox is GPL-2.0-only and is not relicensed by this mirror. MeshStack, ThoxKey firmware, and non-Apache model weights are not in this repository and are not licensed by it.
 
 THOX product names are names of THOX.ai LLC. The Apache-2.0 grant does not license those names as trademarks.
+
+---
+
+## Legal
+
+Copyright (c) 2024-2026 THOX.ai LLC. All rights reserved.
+
+**THOX.ai LLC**
+- CTO: Tommy Xaypanya
+- CEO: Craig Ross
+
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
+
+Unauthorized copying, modification, merger, publication, distribution, sublicensing, and/or selling of this software, via any medium, is strictly prohibited without prior written consent from THOX.ai LLC.
